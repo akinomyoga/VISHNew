@@ -112,7 +112,14 @@ C *******************************J.Liu changes*******************************
       double precision VisBulkNorm
       Common /ViscousBulk/ Visbulk, BulkTau, IRelaxBulk
       Common /VisBulkopt/  IVisBulkFlag, VisBulkNorm        ! Related to bulk Visousity
-C *******************************J.Liu changes end***************************
+
+C ******************************* KM changes ***************************
+      Integer ISaveSection
+      Common /SaveSwitches/ ISaveSection, ISaveSectionSkip
+      Double precision, Parameter :: MinEvolutionTime = 1.4d0
+      Double precision, Parameter :: MaxEvolutionTime = 40.0d0
+
+C ******************************* Custom changes end *******************
 
        Common /LS/ LS
        Common /R0Bdry/ R0Bdry
@@ -147,7 +154,7 @@ C *******************************J.Liu changes end***************************
        parameter (HbarC=0.19733d0) !for changcing between fm and GeV ! Hbarc=0.19733=GeV*fm
        Character Cha
 
-       Integer MaxT
+       Integer MinT, MaxT
 
       Double Precision :: cpu_start, cpu_end ! timing the application
 
@@ -242,6 +249,9 @@ C ***************************J.Liu changes end***************************
       CLOSE(1)
 C===========================================================================
 
+      ISaveSection = 1
+      ISaveSectionSkip = 10
+
 !-----------End of reading parameters from file-------------------------
 
       Print *, "Now read parameters specified from CML"
@@ -281,7 +291,8 @@ C====Change to a smaller time step for small \tau_0 case ==================
       dT  = DT_1
 CSHEN===END================================================================
 
-      MaxT = 40.0/DT_1
+      MinT = ceiling(MinEvolutionTime / DT_1)
+      MaxT = MaxEvolutionTime / DT_1
 
       EK  = EK/Hbarc  !center energy density unit convert to fm^-4
       TT0 = T0
@@ -382,7 +393,7 @@ CSHEN======set up output file for hydro evolution history===================
 
       CALL CPU_TIME(cpu_start) !Tic
       Call Mainpro(NX0,NY0,NZ0,NX,NY,NZ,NXPhy0,NYPhy0,
-     &          NXPhy,NYPhy,T0,DX,DY,DZ,DT,MaxT,NDX,NDY,NDT)   ! main program
+     &          NXPhy,NYPhy,T0,DX,DY,DZ,DT,MinT,MaxT,NDX,NDY,NDT)   ! main program
       CALL CPU_TIME(cpu_end) ! Toc
       Print *, "Finished in", cpu_end-cpu_start, "seconds."
 
@@ -411,9 +422,11 @@ CSHEN======set up output file for hydro evolution history===================
 
 C######################################################################################
       Subroutine Mainpro(NX0,NY0,NZ0, NX,NY,NZ,NXPhy0,NYPhy0,
-     &         NXPhy,NYPhy,T0,DX,DY,DZ,DT,MaxT,NDX,NDY,NDT)
+     &         NXPhy,NYPhy,T0,DX,DY,DZ,DT,MinT,MaxT,NDX,NDY,NDT)
 
       Implicit Double Precision (A-H, O-Z)
+      Integer MinT, MaxT
+
       Dimension X(NX0:NX), Y(NY0:NY), Z(NZ0:NZ)
 
       Dimension TT00(NX0:NX, NY0:NY, NZ0:NZ)
@@ -583,6 +596,9 @@ C-------------------------------------------------------------------------------
 
       Integer IViscousEqsType
       Common/ViscousEqsControl/ IViscousEqsType
+
+      Integer ISaveSection
+      Common /SaveSwitches/ ISaveSection, ISaveSectionSkip
 
       Double Precision SEOSL7, PEOSL7, TEOSL7, SEOSL6
       Double Precision ss, ddt1, ddt2, ee1, ee2
@@ -1071,7 +1087,10 @@ CSHEN=====================================================================
        IW = 0
        do 9999 ITime = 1,MaxT
 !***********************  Begin  Time Loop ********************************
-        Print *,ITime ,' time= ', Time
+        Write(*,'("itime=",I5," / (",I0,",",I0,") time=",F5.3)')
+     &         ITime, MinT, MaxT, Time
+        !Write(*,"(I0,' / (',I0,',',I0,') time=',F5.3)") ITime, MinT, MaxT, Time
+        !Write(*,"(I0,' / (',I0,',',I0,') time=',F5.3)") ITime, MinT, MaxT, Time
 CSHEN===========================================================================
 C======Using a smaller time step for short initialization time \tau_0
             if (Time .lt. 0.59) then
@@ -1317,6 +1336,14 @@ CSHEN====END====================================================================
          enddo
       endif
 
+      If (ISaveSection .ne. 0
+     &     .and. mod(ITime, ISaveSectionSkip) .eq. 1) Then
+        If (ISaveSection .eq. 1) Then
+          call SaveSectionMode1(Temp,Ed,Bd,U0,U1,U2,Time,Dx,Dy,
+     &          ITime,NX0,NX,NY0,NY,NZ0,NZ,NXPhy0,NXPhy,NYPhy0,NYPhy)
+        End If
+      End If
+
       if(IhydroJetoutput .eq. 1) then
 !        output hydro infos
 !        Units: [ed]=GeV/fm^3, [sd]=fm^-3, [p]=GeV/fm^3, [T]=GeV, [Vx]=[Vy]=1
@@ -1455,7 +1482,7 @@ c                END IF
 
       Print*, 'NINT', NINT
 
-      IF (NINT.EQ.0) THEN
+      IF (ITime .gt. MinT .and. NINT.EQ.0) THEN
         WRITE(*,*) 'Decoupling all done at proper time,  T=',T
         goto 10000
 C        IF (EARTERM.EQ.'EARLY') THEN
@@ -6032,5 +6059,45 @@ C----------------------------------------------------------------
       Print*, "DPc12,DPc*Sd=", DPc12(I,J,NZ), DPc12(I,J,NZ0)*Sd(I,J,NZ)
       Print*, "DPc22,DPc*Sd=", DPc22(I,J,NZ), DPc22(I,J,NZ0)*Sd(I,J,NZ)
       Print*, "DPc33,DPc*Sd=", DPc33(I,J,NZ), DPc33(I,J,NZ0)*Sd(I,J,NZ)
+
+      End Subroutine
+
+C-----**** KM, 2022-12-27 **********************************************
+
+      Subroutine SaveSectionMode1(Temp,Ed,Bd,U0,U1,U2,Time,Dx,Dy,
+     &     ITime,NX0,NX,NY0,NY,NZ0,NZ,NXPhy0,NXPhy,NYPhy0,NYPhy)
+      Implicit None
+
+      ! Arguments
+      Double Precision, Dimension(NX0:NX, NY0:NY, NZ0:NZ) :: Temp
+      Double Precision, Dimension(NX0:NX, NY0:NY, NZ0:NZ) :: Ed, Bd
+      Double Precision, Dimension(NX0:NX, NY0:NY, NZ0:NZ) :: U0, U1, U2
+      Double Precision Time, Dx, Dy
+      Integer ITime
+      Integer NX0,NX,NY0,NY,NZ0,NZ
+      Integer NXPhy0,NXPhy,NYPhy0,NYPhy
+
+      ! Local variables
+      Character(len=32) :: filename
+      Integer i, j, k
+
+      !Write(filename,"('movie/xy-',i0.4,'.txt')") ITime - 1
+      Write(filename,"('movie/xy-',f5.3,'.txt')") Time
+      Open(9901, FILE=trim(filename), STATUS='REPLACE')
+      Write(9901, '(A)') '# $1=Time $2,$3=x,y $4=T[GeV] $5=e[1/fm4]
+     &$6=n_B[1/fm3] $7..$9=(u^0,u^x,u^y)'
+
+      Do k = NZ0, NZ
+        Do j = NYPhy0, NYPhy
+          Do i = NXPhy0, NXPhy
+            Write(9901, '(9F18.8)') Time, i*Dx, j*Dy,
+     &            Temp(i, j, k)*0.19733D0, Ed(i, j, k), Bd(i, j, k),
+     &            U0(i, j, k), U1(i, j, k), U2(i, j, k)
+          End Do
+          Write(9901, '(A)')
+        End Do
+      End Do
+
+      Close(9901)
 
       End Subroutine
