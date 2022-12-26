@@ -1086,16 +1086,18 @@ CSHEN====END====================================================================
         Call determineR0(NX0,NY0,NZ0,NX,NY,NZ,Ed,PL,Sd,
      &  Pi00,Pi01,Pi02,Pi11,Pi12,Pi22,Pi33)  !fermi-dirac function to regulate boundary (by determine a suitable R0)
 
-        DO 3006 K = NZ0,NZ !Store last step U0 U1 U2
-        DO 3006 J = NY0,NY
-        DO 3006 I = NX0,NX
-            PU0(I,J,K)   = U0(I,J,K)
-            PU1(I,J,K)   = U1(I,J,K)
-            PU2(I,J,K)   = U2(I,J,K)
-            Temp0(I,J,K)   = Temp(I,J,K)
-            etaTtp0(I,J,K) = etaTtp(I,J,K)
-            XiTtP0(I,J,K)  = XiTtP(I,J,K)
-3006    Continue
+        Do 3006 K = NZ0,NZ !Store last step U0 U1 U2
+        Do J = NY0,NY
+        Do I = NX0,NX
+           PU0(I,J,K)   = U0(I,J,K)
+           PU1(I,J,K)   = U1(I,J,K)
+           PU2(I,J,K)   = U2(I,J,K)
+           Temp0(I,J,K)   = Temp(I,J,K)
+           etaTtp0(I,J,K) = etaTtp(I,J,K)
+           XiTtP0(I,J,K)  = XiTtP(I,J,K)
+        End Do
+        End Do
+ 3006   Continue
 
       ! Initialize PiXXRegulated and backup oldTTXX
       if (ViscousC>1D-6 .or. VisBulk > 1D-6) then
@@ -1388,8 +1390,8 @@ C      NDT = 5
       IF (MOD(N+1,NDT).EQ.0) THEN
          X0 = 0.0
          Y0 = 0.0
-         DO 5300 J = NY0,NY
-         DO 5300 I = NX0,NX
+         Do 5300 J = NY0,NY
+         Do I = NX0,NX
             EPS1(I,J) = Ed(I,J,NZ0)*HbarC
             V11(I,J)  = Vx(I,J,NZ0)
             V21(I,J)  = Vy(I,J,NZ0)
@@ -1408,7 +1410,8 @@ C      NDT = 5
               FPPI(I,J) = PPI(I,J,NZ0)
             endif
 
-5300  CONTINUE
+         End Do
+ 5300    Continue
 
 !      Call FreezeoutPro9 (EDEC,TFREEZ, TFLAG, IEOS,NDX,NDY,NDT,
 !     &     EPS0,EPS1,TEM0,TEM1, V10,V20,V11,V21, EINS,NINT, IW,
@@ -1425,17 +1428,17 @@ C      NDT = 5
 
       print*,'after freezeout'
 
-      DO 5400 J=NY0,NY
-      DO 5400 I=NX0,NX
+      Do 5400 J=NY0,NY
+      Do I=NX0,NX
 c                IF (TFLAG .EQ. 1) THEN
-          TEM0(I,J) = TEM1(I,J)
+         TEM0(I,J) = TEM1(I,J)
 c                END IF
-          EPS0(I,J) = EPS1(I,J)
-          V10(I,J)  = V11(I,J)
-          V20(I,J)  = V21(I,J)
-          TEM0(I,J) = TEM1(I,J)
+         EPS0(I,J) = EPS1(I,J)
+         V10(I,J)  = V11(I,J)
+         V20(I,J)  = V21(I,J)
+         TEM0(I,J) = TEM1(I,J)
 
-          If (ViscousC>1D-6) Then
+         If (ViscousC>1D-6) Then
             F0Pi00(I,J) = Pi00(I,J,NZ0)
             F0Pi01(I,J) = Pi01(I,J,NZ0)
             F0Pi02(I,J) = Pi02(I,J,NZ0)
@@ -1443,11 +1446,12 @@ c                END IF
             F0Pi12(I,J) = Pi12(I,J,NZ0)
             F0Pi22(I,J) = Pi22(I,J,NZ0)
             F0Pi33(I,J) = Pi33(I,J,NZ0)
-          End If
-          if(VisBulk > 1D-6) then
+         End If
+         if(VisBulk > 1D-6) then
             F0PPI(I,J) = PPI(I,J,NZ0)
-          endif
-5400  CONTINUE
+         endif
+      End Do
+ 5400 Continue
 
       Print*, 'NINT', NINT
 
@@ -2197,24 +2201,26 @@ C------- Transport Pi00,Pi01,Pi02,Pi03,Pi11, Pi12,Pi22 by first order theory
        Write (*,*) "After R0 initialization: R0=",R0
 !   ---Zhi-End---
 
-        call ViscousCoefi8(Ed,Sd,PL,Temp,
+       call ViscousCoefi8(Ed,Sd,PL,Temp,
      &  VCoefi,VCBeta,VRelaxT,etaTtp, VBulk, VCBeta0,VRelaxT0,XiTtP,
      &  Time,DX,DY,DT,NX0,NY0,NZ0, NX,NY,NZ, NXPhy0,NYPhy0, NXPhy,NYPhy)
 
-         do 10 k=NZ0,NZ
-         do 10 j=NY0,NY
-         do 10 i=NX0,NX
-              Temp0(i,j,k)=Temp(i,j,k)
-10       continue
+       Do 10 k=NZ0,NZ
+        Do j=NY0,NY
+         Do i=NX0,NX
+          Temp0(i,j,k)=Temp(i,j,k)
+         End Do
+        End Do
+ 10    Continue
 
         call PiS4U5(PU0,PU1,PU2,PU3,U0,U1,U2,U3, DX,DY,DZ, DT,
      & DPc00,DPc01,DPc02,DPc33, DPc11,DPc22,DPc12, DDU0,DDU1,DDU2,
      & Temp,Temp0,  SiLoc,DLnT,  Time, NXPhy0,NYPhy0,NXPhy,NYPhy,
      & NX0,NX,NY0,NY,NZ0,NZ)
 C
-      do 30 k=NZ0,NZ
-      do 30 j=NYPhy0,NYPhy
-      do 30 i=NXPhy0,NXPhy
+      Do 30 k=NZ0,NZ
+      Do j=NYPhy0,NYPhy
+      Do i=NXPhy0,NXPhy
 
         ConsP=VCoefi(i,j,k)*2
 
@@ -2232,7 +2238,9 @@ C
      &      /DMax1(1.0*d-34,U0(i,j,k))
 
         PPI(I,J,K)=(-1.0)*VBulk(i,j,k)*SiLoc(i,j,k)
-30    continue
+      End Do
+      End Do
+30    Continue
 
        call TriSembdary3(Pi00,Pi01, Pi02,
      &        NX0,NY0,NZ0, NX,NY,NZ, NXPhy0,NYPhy0, NXPhy,NYPhy)
@@ -2304,9 +2312,9 @@ C       Dimension A22(NX0:NX, NY0:NY, NZ0:NZ)
 C$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 c       goto 199
 
-        DO 100 K=NZ0,NZ
-        DO 100 J=NYPhy0,NYPhy
-        DO 100 I=NXPhy0,NXPhy
+        Do 100 K=NZ0,NZ
+        Do J=NYPhy0,NYPhy
+        Do I=NXPhy0,NXPhy
 
           xx=DX*I
           yy=DY*J
@@ -2408,6 +2416,9 @@ C     &         Accu=3or5 for 3pt or 5pt cal of deriv. "
 C        end if
        DlnT(I,J,K)=U0(I,J,K)*D0LnT +U1(I,J,K)*D1LnT +U2(I,J,K)*D2LnT         !DLnT term, added 02/2008
        DlnT(I,J,K)= DlnT(I,J,K)*ff  !make boundary works
+
+       End Do
+       End Do
  100   Continue
 
       Return
@@ -2511,20 +2522,22 @@ C-----------Used for Ideal Hydro related stress tensors are set zero------------
 c        Dimension Pi03(NX0:NX, NY0:NY, NZ0:NZ)
 c        Dimension Pi13(NX0:NX, NY0:NY, NZ0:NZ)
 
-          do 10 I=NX0,NX
-          do 10 J=NY0,NY
-          do 10 K=NZ0,NZ
-             Pi00(I,J,K)=0.0
-             Pi01(I,J,K)=0.0
-             Pi02(I,J,K)=0.0
-             Pi33(I,J,K)=0.0
-             Pi11(I,J,K)=0.0
-             Pi12(I,J,K)=0.0
-             Pi22(I,J,K)=0.0
-             PPI(I,J,K)=0.0
-c             Pi03(I,J,K)=0.0
-c             Pi13(I,J,K)=0.0
- 10      Continue
+        Do 10 I=NX0,NX
+         Do J=NY0,NY
+          Do K=NZ0,NZ
+           Pi00(I,J,K)=0.0
+           Pi01(I,J,K)=0.0
+           Pi02(I,J,K)=0.0
+           Pi33(I,J,K)=0.0
+           Pi11(I,J,K)=0.0
+           Pi12(I,J,K)=0.0
+           Pi22(I,J,K)=0.0
+           PPI(I,J,K)=0.0
+c          Pi03(I,J,K)=0.0
+c          Pi13(I,J,K)=0.0
+          End Do
+         End Do
+ 10     Continue
 
        Return
        End
@@ -2571,9 +2584,9 @@ C#####################################################
        Integer IViscousEqsType
        Common/ViscousEqsControl/ IViscousEqsType
 
-      do 10 k=1,1
-      do 10 j=NYPhy0-2,NYPhy+2 ! -2,NYPhy+2
-      do 10 i=NXPhy0-2,NXPhy+2
+      Do 10 k=1,1
+      Do j=NYPhy0-2,NYPhy+2 ! -2,NYPhy+2
+      Do i=NXPhy0-2,NXPhy+2
       xx=DX*I
       yy=DY*J
       rr=sqrt(xx**2+yy**2)
@@ -2665,7 +2678,9 @@ CSHEN======end=================================================================
         XiTtP(i,j,k)=0.0
       end if
 
-10    continue
+      End Do
+      End Do
+10    Continue
 
       Return
       End
@@ -2879,9 +2894,9 @@ C#######################################################
 
       If(IEin.eq.0 ) then  ! intialliztion by energy then find entropy
         Print*,'Con1,Ek,DN00', Con1,EK,DN00
-        do 5 k=1,1
-        do 5 j=NYPhy0,NYPhy
-        do 5 i=NXPhy0,NXPhy
+        Do 5 k=1,1
+        Do j=NYPhy0,NYPhy
+        Do i=NXPhy0,NXPhy
           xx=DX*i
           yy=DY*j
           zz=DZ*K
@@ -2890,7 +2905,9 @@ C#######################################################
           If(IEOS.eq.2) then
             Sd(i,j,K)=ConsS0*ED(i,j,k)**(0.75)
           End if
- 5      continue
+        End Do
+        End Do
+ 5      Continue
         If(IEOS.ne.2) then
           call EntropyTemp3 (Ed,PL, Temp,CMu,Sd,
      &      NX0,NY0,NZ0, NX,NY,NZ, NXPhy0,NYPhy0, NXPhy,NYPhy)
@@ -2906,8 +2923,8 @@ C#######################################################
         Con1 = Con1*HbarC
         Print*,'Con1,Sk,DN00', Con1,EK*HbarC,DN00
         Do 15 k=1,1
-        Do 15 j=NYPhy0,NYPhy
-        Do 15 i=NXPhy0,NXPhy
+        Do j=NYPhy0,NYPhy
+        Do i=NXPhy0,NXPhy
           xx=DX*i
           yy=DY*j
           zz=DZ*K
@@ -2916,6 +2933,8 @@ C#######################################################
           If(IEOS.eq.2) then
             Ed(i,j,k)=ConE1*Sd(i,j,k)**(4.0/3.0)
           End if
+        End Do
+        End Do
 15      Continue
         If(IEOS==7) Then
           Do I = NXPhy0,NXPhy
@@ -2968,18 +2987,20 @@ C#######################################################
         ConsE1=(0.75)**(4.0/3.0)*(1.0/ConsG)*1.0/3.0
 
       If(IEin.eq.0 ) then  ! intialliztion by energy then find entropy
-        do 5 k=1,1
-         do 5 j=NYPhy0,NYPhy
-          do 5 i=NXPhy0,NXPhy
-                 xx=DX*i
-                 yy=DY*j
-                 zz=DZ*K
-             Ed(i,j,k)=Ek*1.0
-     &               *Exp(-xx*xx/(Rx2*2.0)-yy*yy/(Ry2*2.0))
-            If(IEOS.eq.2) then
-            Sd(i,j,K)=ConsS0*ED(i,j,k)**(0.75)
-            End if
- 5      continue
+        Do 5 k=1,1
+        Do j=NYPhy0,NYPhy
+        Do i=NXPhy0,NXPhy
+           xx=DX*i
+           yy=DY*j
+           zz=DZ*K
+           Ed(i,j,k)=Ek*1.0
+     &          *Exp(-xx*xx/(Rx2*2.0)-yy*yy/(Ry2*2.0))
+           If(IEOS.eq.2) then
+              Sd(i,j,K)=ConsS0*ED(i,j,k)**(0.75)
+           End if
+        End Do
+        End Do
+ 5      Continue
         If(IEOS.ne.2) then
             call EntropyTemp3 (Ed,PL, Temp,CMu,Sd,
      &      NX0,NY0,NZ0, NX,NY,NZ, NXPhy0,NYPhy0, NXPhy,NYPhy)
@@ -3022,11 +3043,13 @@ C------call Temperatuen mu  Entropy from ee pp-----------
 
        COMMON /EOSSEL/ IEOS
 
-      Do 1001 k=1,1                           !do 10 is in the unit of fm-1
-      Do 1001 j=NYPhy0-2,NYPhy+2 ! -2,NYPhy
-      Do 1001 i=NXPhy0-2,NXPhy+2
-        Ed(i,j,k) = max(1e-30, Ed(i,j,k))
- 1001 Continue
+       Do 1001 k=1,1            !do 10 is in the unit of fm-1
+       Do j=NYPhy0-2,NYPhy+2 ! -2,NYPhy
+       Do i=NXPhy0-2,NXPhy+2
+          Ed(i,j,k) = max(1e-30, Ed(i,j,k))
+       End Do
+       End Do
+ 1001  Continue
 
 
 
@@ -3038,9 +3061,9 @@ C------call Temperatuen mu  Entropy from ee pp-----------
         ConsS=4.0d0*a                    !ConsS=4.0/3.0*gt*pi**2/30.0
 
            Print *, 'ConsT', ConsT
-          do 10 k=1,1                           !do 10 is in the unit of fm-1
-          do 10 j=NYPhy0-2,NYPhy+2 ! -2,NYPhy
-          do 10 i=NXPhy0-2,NXPhy+2
+          Do 10 k=1,1                           !do 10 is in the unit of fm-1
+          Do j=NYPhy0-2,NYPhy+2 ! -2,NYPhy
+          Do i=NXPhy0-2,NXPhy+2
              PL(i,j,k)=Ed(i,j,k)/3.0
              Temp(i,j,k)=ConsT*(Ed(i,j,k)**0.25)
              Sd(i,j,k)=ConsS*Temp(i,j,k)**3
@@ -3052,7 +3075,9 @@ C------call Temperatuen mu  Entropy from ee pp-----------
           !  Print *, "Temp=", Temp(i,j,k)
           !  Print *, "Pl=", PL(i,j,k)
           !EndIf
- 10       continue
+          End Do
+          End Do
+ 10       Continue
           Print*,'ConsS=',ConsS
 
 
@@ -3095,9 +3120,9 @@ C------call Temperatuen mu  Entropy from ee pp-----------
  98   CONTINUE
       else if (IEOS.eq.4) then  ! the lattice based EOS fm
 
-          do 110 k = 1,1                           !do 10 is in the unit of fm-1
-          do 110 j = NYPhy0-2,NYPhy+2 ! -2,NYPhy
-          do 110 i = NXPhy0-2,NXPhy+2
+          Do 110 k = 1,1                           !do 10 is in the unit of fm-1
+          Do j = NYPhy0-2,NYPhy+2 ! -2,NYPhy
+          Do i = NXPhy0-2,NXPhy+2
            ee = Ed(i,j,k)
            TT = TEIEOS4(ee)  !change the double precison fun for freezeourt corrispondingly
            pp = PEIEOS4(ee)
@@ -3106,12 +3131,14 @@ C------call Temperatuen mu  Entropy from ee pp-----------
            PL(i,j,k)   = pp
            Temp(i,j,k) = TT
            Sd(i,j,k)   = ss
-110       continue
+          End Do
+          End Do
+110       Continue
 
       else if (IEOS.eq.5) then      !CSHEN SM-EOS Q
-          do 112 k = 1,1
-          do 112 j = NYPhy0-2,NYPhy+2
-          do 112 i = NXPhy0-2,NXPhy+2
+          Do 112 k = 1,1
+          Do j = NYPhy0-2,NYPhy+2
+          Do i = NXPhy0-2,NXPhy+2
             ee = Ed(i,j,k)
             TT = TEIEOS5pp(ee)
             pp = PEIEOS5pp(ee)
@@ -3120,13 +3147,15 @@ C------call Temperatuen mu  Entropy from ee pp-----------
             PL(i,j,k)   = pp
             Temp(i,j,k) = TT
             Sd(i,j,k)   = ss
-112        continue
+          End Do
+          End Do
+112       Continue
 
       else if (IEOS.eq.6) then  ! CSHEN New EOS from Lattice
 
-          do 111 k = 1,1                           !do 10 is in the unit of fm-1
-          do 111 j = NYPhy0-2,NYPhy+2 ! -2,NYPhy
-          do 111 i = NXPhy0-2,NXPhy+2
+          Do 111 k = 1,1                           !do 10 is in the unit of fm-1
+          Do j = NYPhy0-2,NYPhy+2 ! -2,NYPhy
+          Do i = NXPhy0-2,NXPhy+2
            ee = Ed(i,j,k)*HbarC     !ee in Gev/fm^3
            TT = TEOSL6(ee)/HbarC    !TEOSL6 in GeV, TT in fm^-1
            pp = PEOSL6(ee)/HbarC          !PEOSL6 in GeV/fm^3, pp in fm^-4
@@ -3135,7 +3164,9 @@ C------call Temperatuen mu  Entropy from ee pp-----------
            PL(i,j,k)   = pp
            Temp(i,j,k) = TT
            Sd(i,j,k)   = ss
-111       continue
+          End Do
+          End Do
+111       Continue
       else if (IEOS.eq.7) then  ! CSHEN EOS from tables
 
           do k = 1,1
@@ -3727,9 +3758,9 @@ C-------------------------------------------
 
 ! Ver 1.6.29RC5: NXPhy0->NX0, etc
 
-       DO 100 K=NZ0,NZ
-       DO 100 J=NY0,NY
-       DO 100 I=NX0,NX
+      Do 100 K=NZ0,NZ
+      Do J=NY0,NY
+      Do I=NX0,NX
 
         T00M=TT00(I,J,K)/Time-Pi00(I,J,K)   ! ---Zhi-Changes---
         T01M=TT01(I,J,K)/Time-Pi01(I,J,K)   ! ---Zhi-Changes---
@@ -3767,11 +3798,13 @@ C-------------------------------------------
           PPI(I,J,K) = 0.0
           PL(I,J,K) = 0.0
         endif
- 100  CONTINUE
+      End Do
+      End Do
+ 100  Continue
 
 C---------------------------------------------------------------
-      DO 300 K=NZ0,NZ
-      DO 300 J=NYPhy0,NYPhy
+      Do 300 K=NZ0,NZ
+      Do J=NYPhy0,NYPhy
 !        EK=T00(0,J,K)
 !        B0=0.0
 !        B0=BN0(0,J,K)
@@ -3864,6 +3897,7 @@ C--------------------------------------
         endif
 !----------------------------------------------------------------------
  310   CONTINUE
+       End Do
  300   CONTINUE
 
 
@@ -3975,9 +4009,9 @@ c------------------------------------------------------------------
 
       If (ViscousC>1D-6) Then
 
-       DO 670 K=NZ0,NZ
-       DO 670 J=NYPhy0,NYPhy
-       DO 670 I=NXPhy0,NXPhy
+       Do K=NZ0,NZ
+       Do J=NYPhy0,NYPhy
+       Do I=NXPhy0,NXPhy
 
         SDX1=(0.0 + Pi11(I+1,J,K) - Pi11(I-1,J,K)
      &   -Vx(I+1,J,K)*Pi01(I+1,J,K)
@@ -4001,7 +4035,9 @@ c------------------------------------------------------------------
      & -Pi00(I,J+1,K))-Vy(I,J-1,K)*(0.0-Pi00(I,J-1,K)))/(2.0*DY)
         ScT00(i,j,K)=0.0+Time*(SDX0+SDY0)+0.0 !ScT00
 
- 670   continue
+       End Do
+       End Do
+       End Do
       Else
         ScT01 = 0D0
         ScT02 = 0D0
@@ -4016,9 +4052,9 @@ c------------------------------------------------------------------
       End If
 
 
-       DO 690 K=NZ0,NZ
-       DO 690 J=NYPhy0,NYPhy
-       DO 690 I=NXPhy0,NXPhy
+       Do K=NZ0,NZ
+       Do J=NYPhy0,NYPhy
+       Do I=NXPhy0,NXPhy
 
         ScT01(i,j,K)=ScT01(i,j,k)
      &    +Time*(PL(I+1,J,K)-PL(I-1,J,K)
@@ -4032,7 +4068,9 @@ c------------------------------------------------------------------
      &+Time*(Vx(I+1,J,K)*PPi(I+1,J,K)-Vx(I-1,J,K)*PPi(I-1,J,K))/(2.0*DX)
      & +Time*(Vy(I,J+1,K)*PL(I,J+1,K)-Vy(I,J-1,K)*PL(I,J-1,K))/(2.0*DY)
      &+Time*(Vy(I,J+1,K)*PPi(I,J+1,K)-Vy(I,J-1,K)*PPi(I,J-1,K))/(2.0*DY)
- 690   continue
+       End Do
+       End Do
+       End Do
  666   continue
 
         call TriSembdary3(ScT00,ScT01, ScT02,
@@ -4077,8 +4115,8 @@ C--------------------
       If (ViscousC>1D-6) Then
 
        DO 700 K=NZ0,NZ
-       DO 700 J=NYPhy0,NYPhy
-       DO 700 I=NXPhy0,NXPhy
+       DO J=NYPhy0,NYPhy
+       DO I=NXPhy0,NXPhy
 
         Tr0=Pi00(i,j,k)*DDU0(i,j,k)-Pi01(i,j,k)*DDU1(i,j,k)
      &                           -Pi02(i,j,k)*DDU2(i,j,k)   !additonal term to keep transversality of pi
@@ -4103,15 +4141,17 @@ C--------------------
         PScT11(i,j,K)=(0.0-TPi11)*(-1.0)
         PScT12(i,j,K)=(0.0-TPi12)*(-1.0)
         PScT22(i,j,K)=(0.0-TPi22)*(-1.0)
- 700   continue
-       Else ! Ver 1.6.19RC5: set to 0
-        PScT00=0D0
-        PScT01=0D0
-        PScT02=0D0
-        PScT11=0D0
-        PScT12=0D0
-        PScT22=0D0
-        PScT33=0D0
+       End Do
+       End Do
+ 700   End Do
+      Else ! Ver 1.6.19RC5: set to 0
+       PScT00=0D0
+       PScT01=0D0
+       PScT02=0D0
+       PScT11=0D0
+       PScT12=0D0
+       PScT22=0D0
+       PScT33=0D0
       End If
 C--------------------------------------------------------------------------------
 
@@ -4126,9 +4166,9 @@ C-------------------------------------------------------------------------------
      &                         NXPhy0,NYPhy0,NXPhy,NYPhy)
       End If
 
-      DO 710 K=NZ0,NZ
-      DO 710 J=NYPhy0,NYPhy
-      DO 710 I=NXPhy0,NXPhy
+      Do 710 K=NZ0,NZ
+      Do J=NYPhy0,NYPhy
+      Do I=NXPhy0,NXPhy
         xx=DX*I
         yy=DY*J
         rr=sqrt(xx**2+yy**2)
@@ -4377,7 +4417,9 @@ C-------------------------------------------------------------------------------
         PISc(i,j,K)=0.0 +( PPI(I,J,K)*BAdd+
      &      PA*PPI(I,J,K)-PT0*(PPI(I,J,K)+PS0*SiLoc(i,j,K)))*(-1.0)
 
- 710   continue
+      End Do
+      End Do
+ 710  Continue
 
 !-----------------------------------------------------------------------
 !    Check if pi(mu,nu) goes away from sigma(mu,nu) (DPc)
@@ -4663,32 +4705,34 @@ C-------------------------------------------------------------------------------
             StotalBv=0.0
             Stotal=0.0
                K=1
-            do 111 J=NYPhy0,NYPhy
-            do 111 I=NXPhy0,NXPhy
-             if(Ed(I-1,J-1,K).ge. Edec1/HbarC) Stotal=Stotal+Sd(i,j,K)
- 111        continue
+            Do J=NYPhy0,NYPhy
+             Do I=NXPhy0,NXPhy
+              if(Ed(I-1,J-1,K).ge. Edec1/HbarC) Stotal=Stotal+Sd(i,j,K)
+             End Do
+            End Do
             Stotal=Stotal*time*dx*dy
             StotalSv=Stotal
             StotalBv=Stotal
          else
-              DsP1=0.0
-              DsP2=0.0
-              K=1
-            do 222 J=NYPhy0,NYPhy
-            do 222 I=NXPhy0,NXPhy
-            if(Ed(I-1,J-1,K).ge. Edec1/HbarC)  then
-             if(ViscousC>1D-6) then
-              Dsp1=Dsp1+(Pi00(I,J,K)**2 +Pi11(I,J,K)**2 +Pi22(I,J,K)**2
-     &             +Pi33(I,J,K)**2 +2.0*Pi01(I,J,K)**2
-     &             +2.0*Pi02(I,J,K)**2 +2.0*Pi12(I,J,K)**2)/
-     &                  (2.0*VCoefi(I,J,K)*Temp(I,J,K))
-             end if
-             if(Visbulk.ge.0.00001.and.VBulk(I,J,K).ge.0.000001)then
-             Dsp2=Dsp2+(PPI(I,J,K)*PPI(I,J,K))/
-     &                    (VBulk(I,J,K)*Temp(I,J,K))
-             end if
-            end if
- 222       continue
+            DsP1=0.0
+            DsP2=0.0
+            K=1
+            Do J=NYPhy0,NYPhy
+             Do I=NXPhy0,NXPhy
+              If(Ed(I-1,J-1,K).ge. Edec1/HbarC)  then
+               if(ViscousC>1D-6) then
+                Dsp1=Dsp1+(Pi00(I,J,K)**2 +Pi11(I,J,K)**2+Pi22(I,J,K)**2
+     &               +Pi33(I,J,K)**2 +2.0*Pi01(I,J,K)**2
+     &               +2.0*Pi02(I,J,K)**2 +2.0*Pi12(I,J,K)**2)/
+     &                    (2.0*VCoefi(I,J,K)*Temp(I,J,K))
+               End if
+               if(Visbulk.ge.0.00001.and.VBulk(I,J,K).ge.0.000001)then
+                Dsp2=Dsp2+(PPI(I,J,K)*PPI(I,J,K))/
+     &                      (VBulk(I,J,K)*Temp(I,J,K))
+               end if
+              end if
+             End Do
+            End Do
              StotalSv=StotalSv+ Dsp1*time*dx*dy*dt
              StotalBv=StotalBv+ Dsp2*time*dx*dy*dt
 
@@ -4805,9 +4849,9 @@ C###############################################################################
        VavX1=0.0
        VavY1=0.0
 
-      DO 100 K=NZ0,NZ
-      DO 100 J=-NYPhy,NYPhy
-      DO 100 I=-NXPhy,NXPhy
+      Do 100 K=NZ0,NZ
+      Do J=-NYPhy,NYPhy
+      Do I=-NXPhy,NXPhy
         !If (Ed(I,J,K) < EDec) Cycle
         gamma=1.0D0/sqrt(1D0-Vx(I,J,NZ0)**2-Vy(I,J,NZ0)**2)
         !gamma=1.0D0/max(sqrt(abs(1D0-Vx(I,J,K)**2-Vy(I,J,K)**2)),1D-15)
@@ -4853,7 +4897,9 @@ C###############################################################################
         Vaver2=Vaver2+Ed(I,J,K)*gamma   !*
 
         STotal=STotal+Sd(I,J,K)*U0(I,J,K)*Time*dx*dy
- 100  continue
+      End Do
+      End Do
+ 100  Continue
 
         EpsX=EpsX1/EpsX2  !spacial ellipticity
         EpsP=EpsP1/EpsP2  !Momentum  ellipticity
@@ -4912,9 +4958,9 @@ C        STotal=STotal*Time*dx*dy*DT
        difPixy=0.0
        difVxVy=0.0
 C----------------------------------------------------------------
-      DO 200 K=NZ0,NZ
-      DO 200 J=0,NYPhy
-      DO 200 I=0,NXPhy
+      Do 200 K=NZ0,NZ
+      Do J=0,NYPhy
+      Do I=0,NXPhy
       AE=AE+Ed(I,J,K)*gamma  !*
       ppe=PL(I,J,K)+Ed(I,J,K)
       ATemp=ATemp+Ed(I,J,K)*Temp(I,J,K)*gamma  !*
@@ -4968,7 +5014,9 @@ C----------------------------------------------------------------
       PaSCT02=PaScT02
      &    +(PL(I,J+1,K)-PL(I,J-1,K))*Ed(I,J,K)/(2.0*DY)*gamma  !*
      &    +(Pi22(I,J+1,K)-Pi22(I,J-1,K))*Ed(I,J,K)/(2.0*DY)*gamma  !*
- 200  continue
+      End Do
+      End Do
+ 200  Continue
 
       ATemp=ATemp/AE
 

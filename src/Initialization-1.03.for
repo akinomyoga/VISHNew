@@ -255,24 +255,23 @@ CSHEN=========end==========================================================
      &         Tde ,'fm-1'
       Print *,'EDec, ',EDec,'GEV', eed,'fm-1'
 
-       Time = T0
+      Time = T0
 
 CSHEN===================================================================
 CSHEN=====Using a smaller time step for short initialization time \tau_0
-       if (Time.lt.0.59) then
-            DT = DT_2
-            write(*,*) 'Using a smaller time step for tau<0.6, DT=',DT
-       else
-            DT = DT_1
-       endif
+      If (Time.lt.0.59) then
+       DT = DT_2
+       write(*,*) 'Using a smaller time step for tau<0.6, DT=',DT
+      else
+       DT = DT_1
+      endif
 CSHEN====END============================================================
 
 C !---------------- Four flow velocity initialization---------------------
       If (InitialURead .eq. 0) then
-        do 2560 K = NZ0,NZ
-        do 2560 I = NXPhy0-3,NXPhy+3
-        do 2560 J = NYPhy0-3,NYPhy+3
-
+       Do K = NZ0,NZ
+        Do I = NXPhy0-3,NXPhy+3
+         Do J = NYPhy0-3,NYPhy+3
           U1(I,J,K)  = 0.0d0
           U2(I,J,K)  = 0.0d0
           U0(I,J,K)  = sqrt(1.0+U1(I,J,K)**2+U2(I,J,K)**2)
@@ -280,17 +279,18 @@ C !---------------- Four flow velocity initialization---------------------
           PU1(I,J,K) = 0.0d0
           PU2(I,J,K) = 0.0d0
           PU0(I,J,K) = sqrt(1.0+PU1(I,J,K)**2+PU2(I,J,K)**2)
-2560   continue
-
-      else
+         End Do
+        End Do
+       End Do
+      Else
 c---------------- Four flow velocity initialization---------------------
 c----------------changed by J.Liu---------------------------------------------------------
-        tolerance = 1D-10
-        ed_max = 0.0   !
-        u_regulated = 0.D0
-        OPEN(UNIT = 21, FILE = 'Initial/ux_profile_kln.dat', 
+       tolerance = 1D-10
+       ed_max = 0.0             !
+       u_regulated = 0.D0
+       OPEN(UNIT = 21, FILE = 'Initial/ux_profile_kln.dat', 
      &      STATUS = 'OLD', FORM = 'FORMATTED') ! read from Landau matched profile
-        OPEN(UNIT = 22, FILE = 'Initial/uy_profile_kln.dat', 
+       OPEN(UNIT = 22, FILE = 'Initial/uy_profile_kln.dat', 
      &      STATUS = 'OLD', FORM = 'FORMATTED') ! read from Landau matched profile
 
 c find maximum energy density to do the flow velocity regulation
@@ -306,33 +306,34 @@ C         write(*,*) 'Maximum energy density: ',ed_max,
 C      &   'tolerance for energy density: ', tolerance,
 C      &   'regulate u: ', u_regulated       
 
-        do 2561 K = NZ0,NZ
-        do 2561 I = NXPhy0,NXPhy
-          read(21,*)  (U1(I,J,K),J=NYPhy0,NYPhy)
-          read(22,*)  (U2(I,J,K),J=NYPhy0,NYPhy)        
+       Do K = NZ0,NZ
+        Do I = NXPhy0,NXPhy
+         read(21,*)  (U1(I,J,K),J=NYPhy0,NYPhy)
+         read(22,*)  (U2(I,J,K),J=NYPhy0,NYPhy)        
 
-          do J=NYPhy0, NYPhy
+         Do J=NYPhy0, NYPhy
 c Regulate dilute region where energy density is small but u_mu is very large
 c Ed(I,J,K) < Ed_max, dilute region
-!             if ((Ed(I,J,K)/ed_max) .lt. tolerance) then
-!               U1(I,J,K) = u_regulated
-!               U2(I,J,K) = u_regulated 
-!             end if
+!     if ((Ed(I,J,K)/ed_max) .lt. tolerance) then
+!     U1(I,J,K) = u_regulated
+!     U2(I,J,K) = u_regulated 
+!     end if
 ! Regulation ends
 
-            U0(I,J,K)  = sqrt(1.0+U1(I,J,K)**2+U2(I,J,K)**2)
-            PU1(I,J,K) = U1(I,J,K)
-            PU2(I,J,K) = U2(I,J,K)
-            PU0(I,J,K) = U0(I,J,K)
-          end do
-c          write(211,'(261(D24.14))')  (U1(I,J,NZ0), J=NYPhy0, NYPhy) !add this line for debug
-c          write(212,'(261(D24.14))')  (U2(I,J,NZ0), J=NYPhy0, NYPhy) !add this line for debug
+          U0(I,J,K)  = sqrt(1.0+U1(I,J,K)**2+U2(I,J,K)**2)
+          PU1(I,J,K) = U1(I,J,K)
+          PU2(I,J,K) = U2(I,J,K)
+          PU0(I,J,K) = U0(I,J,K)
+         End do
+c        write(211,'(261(D24.14))')  (U1(I,J,NZ0), J=NYPhy0, NYPhy) !add this line for debug
+c        write(212,'(261(D24.14))')  (U2(I,J,NZ0), J=NYPhy0, NYPhy) !add this line for debug
 c
-c          write(210,'(261(D24.14))')  (U0(I,J,NZ0), J=NYPhy0, NYPhy) !add this line for debug
-2561   continue
-          close(21)
-          close(22)
-      Endif  ! InitialURead 
+c        write(210,'(261(D24.14))')  (U0(I,J,NZ0), J=NYPhy0, NYPhy) !add this line for debug
+        End Do
+       End Do
+       close(21)
+       close(22)
+      Endif                     ! InitialURead 
 
 !------------------- Energy initialization -----------------------------
 
@@ -431,12 +432,15 @@ C recalculate the temperature etc. using scaled energy density
 C *************************J.Liu changes end********************************
 
 
-      do 2571 K = NZ0,NZ
-      do 2571 I = NX0,NX
-      do 2571 J = NY0,NY
-        Temp0(I,J,K)   = Temp(I,J,K)
-        etaTtp0(I,J,K) = (Ed(I,J,K)+PL(I,J,K))*Temp(I,J,K)/(6.0*VisBeta) !extra (eta T)/tau_pi terms in I-S eqn 02/2008
- 2571 continue
+      Do K = NZ0,NZ
+       Do I = NX0,NX
+        Do J = NY0,NY
+         Temp0(I,J,K) = Temp(I,J,K)
+         etaTtp0(I,J,K) = (Ed(I,J,K)+PL(I,J,K))
+     &        *Temp(I,J,K)/(6.0*VisBeta) !extra (eta T)/tau_pi terms in I-S eqn 02/2008
+        End Do
+       End Do
+      End Do
 
 
 !--------------- Viscous terms initialization --------------------------
@@ -529,9 +533,9 @@ C       End If
 
 !------------- T(mu,nu) initialization ---------------------------------
 
-      do 2570 K = NZ0,NZ
-      do 2570 I = NXPhy0,NXPhy
-      do 2570 J = NYPhy0,NYPhy
+      Do K = NZ0,NZ
+       Do I = NXPhy0,NXPhy
+        Do J = NYPhy0,NYPhy
 
          ee = Ed(i,j,k)*HbarC ! [ee] = GeV/fm^3
          Cn = 0.0
@@ -545,11 +549,9 @@ C       End If
          TT01(i,j,k) = (epU0*U1(i,j,k)+Pi01(i,j,k))*Time
          TT02(i,j,k) = (epU0*U2(i,j,k)+Pi02(i,j,k))*Time
          Rj(i,j,k)   = 0.0
-
-
-2570  continue
-
-
+        End Do
+       End Do
+      End Do
 
 C C ****************************J.Liu changes********************************
 C C inspect initial profiles: output T00, T11 and T22 right after initalization
@@ -625,8 +627,8 @@ C C ****************************J.Liu changes end****************************
      &  DZ,DT,NXPhy0,NYPhy0,NXPhy,NYPhy,NX0,NX,NY0,NY,NZ0,NZ,PNEW,NNEW)
 
     !EPS0 = 1.0d0
-      DO 2600 J = NYPhy0-2,NYPhy+2
-      DO 2600 I = NXPhy0-2,NXPhy+2
+      Do J = NYPhy0-2,NYPhy+2
+       Do I = NXPhy0-2,NXPhy+2
         EPS0(I,J) = Ed(I,J,NZ0)*HbarC
         V10(I,J)  = U1(I,J,NZ0)/U0(I,J,NZ0)
         V20(I,J)  = U2(I,J,NZ0)/U0(I,J,NZ0)
@@ -643,17 +645,19 @@ C C ****************************J.Liu changes end****************************
           F0Pi33(I,J) = Pi33(I,J,NZ0)
         End If
 
-2600  CONTINUE
+       End Do
+      End Do
 
-            DO 2610 J = NYPhy0-2,NYPhy+2
-            DO 2610 I = NXPhy0-2,NXPhy+2
-                AEPS0(I,J) = Ed(I,J,NZ0)
-                AV10(I,J)  = U1(I,J,NZ0)/U0(I,J,NZ0)
-                AV20(I,J)  = U2(I,J,NZ0)/U0(I,J,NZ0)
-                ATEM0(I,J) = Temp(I,J,NZ0)
-2610        CONTINUE
+      Do J = NYPhy0-2,NYPhy+2
+       Do I = NXPhy0-2,NXPhy+2
+        AEPS0(I,J) = Ed(I,J,NZ0)
+        AV10(I,J)  = U1(I,J,NZ0)/U0(I,J,NZ0)
+        AV20(I,J)  = U2(I,J,NZ0)/U0(I,J,NZ0)
+        ATEM0(I,J) = Temp(I,J,NZ0)
+       End Do
+      End Do
 
-         Print*,'after initializtion, 2d Time  ',Time
+      Print*,'after initializtion, 2d Time  ',Time
 
 
        Print*, 'Ed',Ed(0,0,NZ0), Ed(30,30,NZ0),

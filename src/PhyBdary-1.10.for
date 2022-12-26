@@ -30,32 +30,35 @@ C          print 'in UPShasta wrong dimension'
 C          stop
 C        end if
 
-         do 100 I=NX0,NX   !(NX0,NX)
-         do 100 J=NY0,NY   !(NY0,NY)
+        Do 100 I=NX0,NX         !(NX0,NX)
+        Do J=NY0,NY   !(NY0,NY)
            PTT(I,J)=TT(I,J,NZ0)     !TT(I+3, J+3)
            PVx(I,J)=Vx(I,J,NZ0)
            PVy(I,J)=Vy(I,J,NZ0)
            PSc(I,J)=ScT(I,J,NZ0)
- 100      continue
+        End Do
+ 100    Continue
 
         CALL SHATRA(NXPhy0,NYPhy0,NXPhy,NYPhy,PTT,PVx,PVy,PSc, IPX, IPY,
      &         WORK1,  ISYM1,ISYM2, DT/DX,DT/DY,  NX0, NY0,  NX,NY)
         CALL SHACOR(NXPhy0,NYPhy0,NXPhy,NYPhy,PTT,PVx,PVy, WORK1,
      &    DT/DX,DT/DY, WORK2,WORK1,DIFFC, ISYM1,ISYM2, NX0, NY0,  NX,NY)
 
-          If(IPX.eq.0.and.IPY.eq.0 ) then
-C           DO 500 J=NYPhy0-2,NYPhy+2
-C           DO 500 I=NXPhy0-2,NXPhy+2
-           DO 500 J=NYPhy0,NYPhy
-           DO 500 I=NXPhy0,NXPhy
-           PTT(I,J)=PTT(I,J)-PSc(I,J)*DT
- 500       Continue
-          end if
+        If(IPX.eq.0.and.IPY.eq.0 ) then
+C         DO 500 J=NYPhy0-2,NYPhy+2
+C         DO 500 I=NXPhy0-2,NXPhy+2
+         Do 500 J=NYPhy0,NYPhy
+         Do I=NXPhy0,NXPhy
+         PTT(I,J)=PTT(I,J)-PSc(I,J)*DT
+         End Do
+ 500     Continue
+        End If
 
-         do 800 I=NX0,NX   !(NX0,NX)
-         do 800 J=NY0,NY   !(NY0,NY)
+        Do 800 I=NX0,NX         !(NX0,NX)
+        Do J=NY0,NY   !(NY0,NY)
            TT(I,J,NZ0)=PTT(I,J)     !TT(I+3, J+3)
- 800      continue
+        End Do
+ 800    Continue
 
       Return
       End
@@ -1784,25 +1787,27 @@ c     &                PMAT1(0:300,0:250),PMAT2(0:300,0:250)
 
 C###################################################################
 
-
 C####################################################################
       Subroutine ASM2D6(AA,IAA, NXPhy0,NYPhy0, NXPhy,NYPhy,
      &                        NX0,NY0,NZ0, NX,NY,NZ)
-        Implicit Double Precision (A-H, O-Z)
-       Dimension AA(NX0:NX, NY0:NY, NZ0:NZ)
-       Dimension IAA(NX0:NX, NY0:NY, NZ0:NZ)
-       Dimension FAA(NX0-3:NX+3, NY0-3:NY+3, NZ0:NZ)
-        C0=0.486/1.514
-        C1=0.343/1.514
-        C2=-0.086/1.514
+      Implicit Double Precision (A-H, O-Z)
+      Dimension AA(NX0:NX, NY0:NY, NZ0:NZ)
+      Dimension IAA(NX0:NX, NY0:NY, NZ0:NZ)
+      Dimension FAA(NX0-3:NX+3, NY0-3:NY+3, NZ0:NZ)
+      C0=0.486/1.514
+      C1=0.343/1.514
+      C2=-0.086/1.514
 
-         do 100 k=NZ0,NZ
-         do 100 i=NXPhy0-3,NXPhy+3
-         do 100 j=NYPhy0-3,NYPhy+3
+      Do 100 k=NZ0,NZ
+      Do i=NXPhy0-3,NXPhy+3
+      Do j=NYPhy0-3,NYPhy+3
         FAA(i,j,k)=AA(i,j,k)
- 100   continue
-       do 300 i=NXPhy0-2,NXPhy+2
-       do 300 j=NYPhy0-2,NYPhy+2
+      End Do
+      End Do
+ 100  Continue
+
+      Do 300 i=NXPhy0-2,NXPhy+2
+      Do j=NYPhy0-2,NYPhy+2
 c       If(IAA(i,j,NZ0).eq.0) then
          AA(i,j,NZ0)=C0*FAA(i,j,NZ0) +C1*(FAA(i-1,j,NZ0)+FAA(i+1,j,NZ0)
      &     +FAA(i,j-1,NZ0)+FAA(i,j+1,NZ0)) +C2*(FAA(i-1,j-1,NZ0)
@@ -1810,9 +1815,11 @@ c       If(IAA(i,j,NZ0).eq.0) then
 c       else
         AA(i,j,NZ0)=AA(i,j,NZ0)
 c       end if
- 300   continue
+      End Do
+ 300  Continue
       Return
       End
+
 C####################################################################
       Subroutine CoefASM2d(CofAA, NXPhy0,NYPhy0, NXPhy,NYPhy,
      &                        NX0,NY0,NZ0, NX,NY,NZ)
@@ -1825,16 +1832,16 @@ C####################################################################
       AepsBdry = 0.5
       !Print *, "R0Bdry=", R0Bdry
 
-        C0=0.486d0/1.514d0
-        C1=0.343d0/1.514d0
-        C2=-0.086d0/1.514d0
+      C0=0.486d0/1.514d0
+      C1=0.343d0/1.514d0
+      C2=-0.086d0/1.514d0
 
-       do 300 i=NXPhy0-2,NXPhy+2
-       do 300 j=NYPhy0-2,NYPhy+2
-         xx=ddx*I
-         yy=ddy*J
-         rr=sqrt(xx**2+yy**2)
-         ff=1.0/(Dexp((rr-R0Bdry)/AepsBdry)+1.0)
+      Do 300 i=NXPhy0-2,NXPhy+2
+      Do j=NYPhy0-2,NYPhy+2
+        xx=ddx*I
+        yy=ddy*J
+        rr=sqrt(xx**2+yy**2)
+        ff=1.0/(Dexp((rr-R0Bdry)/AepsBdry)+1.0)
 
         C0a=(1.0-C0)*ff+C0
         C1a=C1*(1-ff)
@@ -1844,7 +1851,8 @@ C####################################################################
         CofAA(1,I,J,NZ0)=C1a
         CofAA(2,I,J,NZ0)=C2a
 
-300   continue
+      End Do
+300   Continue
       Return
       End
 
@@ -1853,28 +1861,31 @@ C####################################################################
 C####################################################################
       Subroutine ASM2D6bsm(AA,CofAA, NXPhy0,NYPhy0, NXPhy,NYPhy,
      &                        NX0,NY0,NZ0, NX,NY,NZ)
-        Implicit Double Precision (A-H, O-Z)
-       Dimension AA(NX0:NX, NY0:NY, NZ0:NZ)
-       Dimension FAA(NX0-3:NX+3, NY0-3:NY+3, NZ0:NZ)
-       Dimension CofAA(0:2,NX0:NX, NY0:NY, NZ0:NZ)
+      Implicit Double Precision (A-H, O-Z)
+      Dimension AA(NX0:NX, NY0:NY, NZ0:NZ)
+      Dimension FAA(NX0-3:NX+3, NY0-3:NY+3, NZ0:NZ)
+      Dimension CofAA(0:2,NX0:NX, NY0:NY, NZ0:NZ)
 
-         do 100 k=NZ0,NZ
-         do 100 i=NXPhy0-3,NXPhy+3
-         do 100 j=NYPhy0-3,NYPhy+3
+      Do 100 k=NZ0,NZ
+      Do i=NXPhy0-3,NXPhy+3
+      Do j=NYPhy0-3,NYPhy+3
         FAA(i,j,k)=AA(i,j,k)
- 100   continue
+      End Do
+      End Do
+ 100  Continue
 
-       do 300 i=NXPhy0-2,NXPhy+2
-       do 300 j=NYPhy0-2,NYPhy+2
+      Do 300 i=NXPhy0-2,NXPhy+2
+      Do j=NYPhy0-2,NYPhy+2
 
-            C0=CofAA(0,I,J,NZ0)
-            C1=CofAA(1,I,J,NZ0)
-            C2=CofAA(2,I,J,NZ0)
-          AA(i,j,NZ0)=C0*FAA(i,j,NZ0) +C1*(FAA(i-1,j,NZ0)+FAA(i+1,j,NZ0)
-     &    +FAA(i,j-1,NZ0)+FAA(i,j+1,NZ0)) +C2*(FAA(i-1,j-1,NZ0)
-     &    +FAA(i+1,j+1,NZ0)+FAA(i+1,j-1,NZ0)+FAA(i-1,j+1,NZ0))
+        C0=CofAA(0,I,J,NZ0)
+        C1=CofAA(1,I,J,NZ0)
+        C2=CofAA(2,I,J,NZ0)
+        AA(i,j,NZ0)=C0*FAA(i,j,NZ0) +C1*(FAA(i-1,j,NZ0)+FAA(i+1,j,NZ0)
+     &       +FAA(i,j-1,NZ0)+FAA(i,j+1,NZ0)) +C2*(FAA(i-1,j-1,NZ0)
+     &       +FAA(i+1,j+1,NZ0)+FAA(i+1,j-1,NZ0)+FAA(i-1,j+1,NZ0))
 
-300   continue
+      End Do
+ 300  Continue
       Return
       End
 
@@ -1889,8 +1900,8 @@ C###############################################################################
         LOGICAL V1FOUND,V2FOUND,V3FOUND,V4FOUND
 C-----------Boundary Treatment-for Velocity ------------------
 
-      DO 1800 K=NZ0,NZ
-      DO 1800 I=NXPhy0,NXPhy
+      Do 1800 K=NZ0,NZ
+      Do I=NXPhy0,NXPhy
         do kk=1,3
         Vx(I,NYPhy+kk,K)=2.0*Vx(I,NYPhy,K)-Vx(I,NYPhy-kk,K)
         Vx(I,NYPhy0-kk,K)=2.0*Vx(I,NYPhy0,K)-Vx(I,NYPhy0+kk,K)
@@ -1898,10 +1909,11 @@ C-----------Boundary Treatment-for Velocity ------------------
         Vy(I,NYPhy+kk,K)=2.0*Vy(I,NYPhy,K)-Vy(I,NYPhy-kk,K)
         Vy(I,NYPhy0-kk,K)=2.0*Vy(I,NYPhy0,K)-Vy(I,NYPhy0+kk,K)
         end do
+      End Do
 1800  CONTINUE
 
       DO 1810 K=NZ0,NZ
-      DO 1810 J=NYPhy0-3,NYPhy+3
+      Do J=NYPhy0-3,NYPhy+3
         do kk=1,3
         Vx(NXPhy+kk,J,K)=2.0*Vx(NXPhy,J,K)-Vx(NXPhy-kk,J,K)
         Vx(NXPhy0-kk,J,K)=2.0*Vx(NXPhy0,J,K)-Vx(NXPhy0+kk,J,K)
@@ -1909,10 +1921,11 @@ C-----------Boundary Treatment-for Velocity ------------------
         Vy(NXPhy+kk,J,K)=2.0*Vy(NXPhy,J,K)-Vy(NXPhy-kk,J,K)
         Vy(NXPhy0-kk,J,K)=2.0*Vy(NXPhy0,J,K)-Vy(NXPhy0+kk,J,K)
         end do
+      End Do
 1810  CONTINUE
 
-      DO 1820 K=NZ0,NZ
-      DO 1820 I=NXPhy0-3,NXPhy-3
+      Do 1820 K=NZ0,NZ
+      Do I=NXPhy0-3,NXPhy-3
         do kk=1,3
         Vx(I,NYPhy+kk,K)=(2.0*Vx(I,NYPhy,K)-Vx(I,NYPhy-kk,K))*0.5
      &                                      +0.5*Vx(I,NYPhy+kk,K)
@@ -1924,77 +1937,80 @@ C-----------Boundary Treatment-for Velocity ------------------
         Vy(I,NYPhy0-kk,K)=(2.0*Vy(I,NYPhy0,K)-Vy(I,NYPhy0+kk,K))*0.5
      &                                    +0.5*Vy(I,NYPhy0-kk,K)
         end do
+      End Do
 1820  CONTINUE
 
 
 
 C          goto 999
 C-------------Some other treatment of Velocity-------------------------
-          DO 3310 K=NZ0,NZ
-          DO 3310 I=NXPhy0-3,NXPhy+3
-            V1FOUND=.TRUE.
-            V2FOUND=.TRUE.
-            V3FOUND=.TRUE.
-            V4FOUND=.TRUE.
+      Do 3310 K=NZ0,NZ
+      Do I=NXPhy0-3,NXPhy+3
+        V1FOUND=.TRUE.
+        V2FOUND=.TRUE.
+        V3FOUND=.TRUE.
+        V4FOUND=.TRUE.
 
-            DO 3311 J=NYPhy-1,0,-1
-             AVy=Vy(I,J,K)
-      IF (V1FOUND.AND.ABS(AVy).GT.AAC0) THEN
-        V1FOUND=.FALSE.
-          Vy(I,J+1,K)=2.0*Vy(I,J,K)-Vy(I,J-1,K)
-        Vy(I,J+2,K)=2.0*Vy(I,J,K)-Vy(I,J-2,K)
-        Vy(I,J+3,K)=2.0*Vy(I,J,K)-Vy(I,J-3,K)
-        Vy(I,J+4,K)=2.0*Vy(I,J,K)-Vy(I,J-4,K)
-      ENDIF
- 3311     CONTINUE
+        Do 3311 J=NYPhy-1,0,-1
+          AVy=Vy(I,J,K)
+          IF (V1FOUND.AND.ABS(AVy).GT.AAC0) THEN
+            V1FOUND=.FALSE.
+            Vy(I,J+1,K)=2.0*Vy(I,J,K)-Vy(I,J-1,K)
+            Vy(I,J+2,K)=2.0*Vy(I,J,K)-Vy(I,J-2,K)
+            Vy(I,J+3,K)=2.0*Vy(I,J,K)-Vy(I,J-3,K)
+            Vy(I,J+4,K)=2.0*Vy(I,J,K)-Vy(I,J-4,K)
+          ENDIF
+ 3311   Continue
 
-            DO 3312 J=NYPhy0+1,0,+1
-             AVy=Vy(I,J,K)
-      IF (V2FOUND.AND.ABS(AVy).GT.AAC0) THEN
-        V2FOUND=.FALSE.
-          Vy(I,J-1,K)=2.0*Vy(I,J,K)-Vy(I,J+1,K)
-        Vy(I,J-2,K)=2.0*Vy(I,J,K)-Vy(I,J+2,K)
-        Vy(I,J-3,K)=2.0*Vy(I,J,K)-Vy(I,J+3,K)
-        Vy(I,J-4,K)=2.0*Vy(I,J,K)-Vy(I,J+4,K)
-      ENDIF
- 3312     CONTINUE
+        Do 3312 J=NYPhy0+1,0,+1
+          AVy=Vy(I,J,K)
+          IF (V2FOUND.AND.ABS(AVy).GT.AAC0) THEN
+            V2FOUND=.FALSE.
+            Vy(I,J-1,K)=2.0*Vy(I,J,K)-Vy(I,J+1,K)
+            Vy(I,J-2,K)=2.0*Vy(I,J,K)-Vy(I,J+2,K)
+            Vy(I,J-3,K)=2.0*Vy(I,J,K)-Vy(I,J+3,K)
+            Vy(I,J-4,K)=2.0*Vy(I,J,K)-Vy(I,J+4,K)
+          ENDIF
+ 3312   CONTINUE
 
- 3310     CONTINUE
+      End Do
+ 3310 Continue
 
-        DO 3320 K=NZ0,NZ
-        DO 3320 J=NYPhy0-3,NYPhy+3
+      Do 3320 K=NZ0,NZ
+      Do J=NYPhy0-3,NYPhy+3
 
-          V1FOUND=.TRUE.
-          V2FOUND=.TRUE.
-          V3FOUND=.TRUE.
-          V4FOUND=.TRUE.
+        V1FOUND=.TRUE.
+        V2FOUND=.TRUE.
+        V3FOUND=.TRUE.
+        V4FOUND=.TRUE.
 
-          DO 3321 I=NXPhy-1,0,-1
-             AVx=Vx(I,J,K)
+        DO 3321 I=NXPhy-1,0,-1
+          AVx=Vx(I,J,K)
           IF (V3FOUND.AND.ABS(AVx).GT.AAC0) THEN
-      V3FOUND=.FALSE.
+            V3FOUND=.FALSE.
 C            Print *,I,J, AAC0,AVx
-      Vx(I+1,J,K)=2.0*Vx(I,J,K)-Vx(I-1,J,K)
-      Vx(I+2,J,K)=2.0*Vx(I,J,K)-Vx(I-2,J,K)
-      Vx(I+3,J,K)=2.0*Vx(I,J,K)-Vx(I-3,J,K)
-      Vx(I+4,J,K)=2.0*Vx(I,J,K)-Vx(I-4,J,K)
+            Vx(I+1,J,K)=2.0*Vx(I,J,K)-Vx(I-1,J,K)
+            Vx(I+2,J,K)=2.0*Vx(I,J,K)-Vx(I-2,J,K)
+            Vx(I+3,J,K)=2.0*Vx(I,J,K)-Vx(I-3,J,K)
+            Vx(I+4,J,K)=2.0*Vx(I,J,K)-Vx(I-4,J,K)
           END IF
- 3321  CONTINUE
+ 3321   CONTINUE
 
-          DO 3322 I=NXPhy0+1,0,+1
-             AVx=Vx(I,J,K)
+        DO 3322 I=NXPhy0+1,0,+1
+          AVx=Vx(I,J,K)
           IF (V4FOUND.AND.ABS(AVx).GT.AAC0) THEN
-      V4FOUND=.FALSE.
-      Vx(I-1,J,K)=2.0*Vx(I,J,K)-Vx(I+1,J,K)
-      Vx(I-2,J,K)=2.0*Vx(I,J,K)-Vx(I+2,J,K)
-      Vx(I-3,J,K)=2.0*Vx(I,J,K)-Vx(I+3,J,K)
-      Vx(I-4,J,K)=2.0*Vx(I,J,K)-Vx(I+4,J,K)
+            V4FOUND=.FALSE.
+            Vx(I-1,J,K)=2.0*Vx(I,J,K)-Vx(I+1,J,K)
+            Vx(I-2,J,K)=2.0*Vx(I,J,K)-Vx(I+2,J,K)
+            Vx(I-3,J,K)=2.0*Vx(I,J,K)-Vx(I+3,J,K)
+            Vx(I-4,J,K)=2.0*Vx(I,J,K)-Vx(I+4,J,K)
           END IF
- 3322  CONTINUE
+ 3322   CONTINUE
 
- 3320  CONTINUE
+      End Do
+ 3320 Continue
 
- 999   Continue
+ 999  Continue
       Return
       End
 
@@ -2011,31 +2027,34 @@ C###############################################################################
         LOGICAL V1FOUND,V2FOUND,V3FOUND,V4FOUND
 C-----------Boundary Treatment-for Velocity ------------------
 
-      DO 1800 K=NZ0,NZ
-      DO 1800 I=NXPhy0,NXPhy
+      Do 1800 K=NZ0,NZ
+      Do I=NXPhy0,NXPhy
         do kk=1,3
         VV(I,NYPhy+kk,K)=2.0*VV(I,NYPhy,K)-VV(I,NYPhy-kk,K)
         VV(I,NYPhy0-kk,K)=2.0*VV(I,NYPhy0,K)-VV(I,NYPhy0+kk,K)
         end do
-1800  CONTINUE
+      End Do
+ 1800 Continue
 
-      DO 1810 K=NZ0,NZ
-      DO 1810 J=NYPhy0-3,NYPhy+3
+      Do 1810 K=NZ0,NZ
+      Do J=NYPhy0-3,NYPhy+3
         do kk=1,3
         VV(NXPhy+kk,J,K)=2.0*VV(NXPhy,J,K)-VV(NXPhy-kk,J,K)
         VV(NXPhy0-kk,J,K)=2.0*VV(NXPhy0,J,K)-VV(NXPhy0+kk,J,K)
         end do
-1810  CONTINUE
+      End Do
+ 1810 Continue
 
-      DO 1820 K=NZ0,NZ
-      DO 1820 I=NXPhy0-3,NXPhy-3
+      Do 1820 K=NZ0,NZ
+      Do I=NXPhy0-3,NXPhy-3
         do kk=1,3
         VV(I,NYPhy+kk,K)=(2.0*VV(I,NYPhy,K)-VV(I,NYPhy-kk,K))*0.5
      &                                      +0.5*VV(I,NYPhy+kk,K)
         VV(I,NYPhy0-kk,K)=(2.0*VV(I,NYPhy0,K)-VV(I,NYPhy0+kk,K))*0.5
      &                                    +0.5*VV(I,NYPhy0-kk,K)
         end do
-1820  CONTINUE
+      End Do
+ 1820 Continue
 
 
 
@@ -2118,31 +2137,34 @@ C########################################################################
         Implicit Double Precision (A-H, O-Z)
         Dimension PL(NX0:NX, NY0:NY, NZ0:NZ)
 C-----------Boundary Treatment-------------------
-      DO 1800 K=NZ0,NZ
-      DO 1800 I=NXPhy0,NXPhy
+      Do 1800 K=NZ0,NZ
+      Do I=NXPhy0,NXPhy
         do kk=1,3
         PL(I,NYPhy+kk,K)=2.0*PL(I,NYPhy,K)-PL(I,NYPhy-kk,K)
         PL(I,NYPhy0-kk,K)=2.0*PL(I,NYPhy0,K)-PL(I,NYPhy0+kk,K)
         end do
-1800  CONTINUE
+      End Do
+1800  Continue
 
-      DO 1810 K=NZ0,NZ
-      DO 1810 J=NYPhy0-3,NYPhy+3
+      Do 1810 K=NZ0,NZ
+      Do J=NYPhy0-3,NYPhy+3
         do kk=1,3
         PL(NXPhy+kk,J,K)=2.0*PL(NXPhy,J,K)-PL(NXPhy-kk,J,K)
         PL(NXPhy0-kk,J,K)=2.0*PL(NXPhy0,J,K)-PL(NXPhy0+kk,J,K)
         end do
-1810  CONTINUE
+      End Do
+1810  Continue
 
-      DO 1820 K=NZ0,NZ
-      DO 1820 I=NXPhy0-3,NXPhy-3
+      Do 1820 K=NZ0,NZ
+      Do I=NXPhy0-3,NXPhy-3
         do kk=1,3
         PL(I,NYPhy+kk,K)=(2.0*PL(I,NYPhy,K)-PL(I,NYPhy-kk,K))*0.5
      &                                    +0.5*PL(I,NYPhy+kk,K)
         PL(I,NYPhy0-kk,K)=(2.0*PL(I,NYPhy0,K)-PL(I,NYPhy0+kk,K))*0.5
      &                                    +0.5*PL(I,NYPhy0-kk,K)
         end do
-1820  CONTINUE
+      End Do
+1820  Continue
 
       Return
       End
@@ -2157,8 +2179,8 @@ C########################################################################
         Dimension PL3(NX0:NX, NY0:NY, NZ0:NZ)
 C-----------Boundary Treatment-------------------
 
-      DO 1800 K=NZ0,NZ
-      DO 1800 I=NXPhy0,NXPhy
+      Do 1800 K=NZ0,NZ
+      Do I=NXPhy0,NXPhy
         do kk=1,3
         PL1(I,NYPhy+kk,K)=2.0*PL1(I,NYPhy,K)-PL1(I,NYPhy-kk,K)
         PL1(I,NYPhy0-kk,K)=2.0*PL1(I,NYPhy0,K)-PL1(I,NYPhy0+kk,K)
@@ -2169,10 +2191,11 @@ C-----------Boundary Treatment-------------------
         PL3(I,NYPhy+kk,K)=2.0*PL3(I,NYPhy,K)-PL3(I,NYPhy-kk,K)
         PL3(I,NYPhy0-kk,K)=2.0*PL3(I,NYPhy0,K)-PL3(I,NYPhy0+kk,K)
         end do
+      End Do
 1800  CONTINUE
 
-      DO 1810 K=NZ0,NZ
-      DO 1810 J=NYPhy0-3,NYPhy+3
+      Do 1810 K=NZ0,NZ
+      Do J=NYPhy0-3,NYPhy+3
         do kk=1,3
         PL1(NXPhy+kk,J,K)=2.0*PL1(NXPhy,J,K)-PL1(NXPhy-kk,J,K)
         PL1(NXPhy0-kk,J,K)=2.0*PL1(NXPhy0,J,K)-PL1(NXPhy0+kk,J,K)
@@ -2183,10 +2206,11 @@ C-----------Boundary Treatment-------------------
         PL3(NXPhy+kk,J,K)=2.0*PL3(NXPhy,J,K)-PL3(NXPhy-kk,J,K)
         PL3(NXPhy0-kk,J,K)=2.0*PL3(NXPhy0,J,K)-PL3(NXPhy0+kk,J,K)
         end do
-1810  CONTINUE
+      End Do
+1810  Continue
 
       DO 1820 K=NZ0,NZ
-      DO 1820 I=NXPhy0-3,NXPhy-3
+      Do I=NXPhy0-3,NXPhy-3
         do kk=1,3
         PL1(I,NYPhy+kk,K)=(2.0*PL1(I,NYPhy,K)-PL1(I,NYPhy-kk,K))*0.5
      &                                    +0.5*PL1(I,NYPhy+kk,K)
@@ -2203,7 +2227,8 @@ C-----------Boundary Treatment-------------------
         PL3(I,NYPhy0-kk,K)=(2.0*PL3(I,NYPhy0,K)-PL3(I,NYPhy0+kk,K))*0.5
      &                                      +0.5*PL3(I,NYPhy0-kk,K)
         end do
-1820  CONTINUE
+      End Do
+1820  Continue
 
       Return
       End

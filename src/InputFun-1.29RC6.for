@@ -679,7 +679,7 @@
         Else
           varName(I:I) = LHS(I:I)
         EndIf
-      EndDo
+      End Do
 
       ! convert RHS to numerics:
       If (varName(1:1)=="i" .or. varName(1:1)=="n") Then
@@ -774,9 +774,9 @@
       If (regMethod .eq. 1) Then
         If (debug>=5) Print *,"-- To branch regMethod=1"
 
-        DO 791 K=NZ0,NZ
-        DO 791 J=NYPhy0,NYPhy
-        DO 791 I=NXPhy0,NXPhy
+        Do 791 K=NZ0,NZ
+        Do J=NYPhy0,NYPhy
+        Do I=NXPhy0,NXPhy
 
         D0U0=(U0(I,J,K)-PU0(I,J,K))/DT
         D0U1=(U1(I,J,K)-PU1(I,J,K))/DT
@@ -823,13 +823,15 @@
         DPc22(I,J,K)=(-1.0)*D2U2-U2(I,J,K)*DU2+CS*(U2(I,J,K)**2+1.0)
         DPc12(I,J,K)=(-0.5)*(D2U1+D1U2)-0.5*(U1(I,J,K)*DU2
      &              +U2(I,J,K)*DU1)+CS*(U1(I,J,K)*U2(I,J,K))
+        End Do
+        End Do
  791    Continue
 
         RMin = NX*ddx+NY*ddy !---Upper-Bound-R0---
 
-        DO 3007 K=NZ0,NZ !Check for Pi tensor
-        DO 3007 J=NYPhy0,NYPhy
-        DO 3007 I=NXPhy0,NXPhy
+        Do 3007 K=NZ0,NZ !Check for Pi tensor
+        Do J=NYPhy0,NYPhy
+        Do I=NXPhy0,NXPhy
           EAndP = Abs(Ed(I,J,K)+PL(I,J,K))
           SigmaLargeness = 1/7.0*(Abs(DPc00(I,J,K))+
      &      Abs(DPc01(I,J,K))+Abs(DPc02(I,J,K))+Abs(DPc33(I,J,K))+
@@ -842,6 +844,8 @@
           EndIf
         EndIf
 
+        End Do
+        End Do
  3007   Continue
         R0 = RMin
       ElseIf (regMethod .eq. 2) Then ! use maximun possible R0
@@ -911,9 +915,9 @@
       If (regMethod .eq. 1) Then
         If (debug>=5) Print *, "-- To branch regMethod=1"
         RMin = NX*ddx+NY*ddy !---Upper-Bound-R0---
-        DO 3007 K=NZ0,NZ !Check for Pi tensor
-        DO 3007 J=NY0,NY
-        DO 3007 I=NX0,NX
+        Do 3007 K=NZ0,NZ !Check for Pi tensor
+        Do J=NY0,NY
+        Do I=NX0,NX
           EAndP = Abs(Ed(I,J,K)+PL(I,J,K))
           PiLargeness = 1/7.0*(Abs(Pi00(I,J,K))+
      &      Abs(Pi01(I,J,K))+Abs(Pi02(I,J,K))+Abs(Pi33(I,J,K))+
@@ -925,6 +929,8 @@
                 RMin = sqrt(ddx*ddx*I*I+ddy*ddy*J*J)
               EndIf
           EndIf
+        End Do
+        End Do
  3007   Continue
         R0 = RMin
       ElseIf (regMethod .eq. 2) Then ! use maximun possible R0
@@ -990,9 +996,9 @@
         If (debug>=5) Print *, "-- To branch regMethod=2"
         If (debug>=5) Print *, "-- Pi regulation at time",Time
 
-        DO 3019 K=NZ0,NZ
-        DO 3019 J=NY0,NY
-        DO 3018 I=NX0,NX
+        Do 3019 K=NZ0,NZ
+        Do J=NY0,NY
+        Do I=NX0,NX
 
         regStrength = 1D-30
         
@@ -1033,7 +1039,8 @@
 
         PPI(I,J,K)=PPI(I,J,K)*(tanh(regStrength)/regStrength) ! Bulk pressure PPI is regulated here
 
-3018    Continue
+        End Do
+        End Do
 3019    Continue
 
       EndIf ! on regMethod
@@ -1120,9 +1127,9 @@
         If (debug>=5) Print *, "-- To branch regMethod=2"
         If (debug>=5) Print *, "-- Pi regulation at time",Time
 
-        DO 3009 K=NZ0,NZ
-        DO 3009 J=NY0,NY
-        DO 3008 I=NX0,NX
+        Do 3009 K=NZ0,NZ
+        Do J=NY0,NY
+        Do I=NX0,NX
 
         regStrength = 1D-30
 
@@ -1282,7 +1289,8 @@
           Stop
         EndIf
 
-3008    Continue
+        End Do
+        End Do
 3009    Continue
 
       EndIf ! on regMethod
@@ -1425,14 +1433,16 @@
       If (outPiStrengthX .eq. 1) Then ! Output Pi value on X axis to file
         Open(394,FILE="movie/PiOnX.dat",STATUS='OLD',ACCESS='APPEND') ! file to output where Pi<0.9*max_pi
         Write(394,'(f15.8)',ADVANCE='NO') Time ! write column header
-        DO 3108 K=NZ0,NZ0
-        DO 3108 J=0,0
-        DO 3108 I=0,NXPhy
+        Do 3108 K=NZ0,NZ0
+        Do J=0,0
+        Do I=0,NXPhy
           PiAvg = 1.0d0/7.0d0*
      &      (abs(Pi00(I,J,K))+abs(Pi01(I,J,K))+abs(Pi02(I,J,K))
      &      +abs(Pi11(I,J,K))+abs(Pi12(I,J,K))+abs(Pi22(I,J,K))
      &      +abs(Pi33(I,J,K)))
           Write(394,'(f15.8)',ADVANCE='NO') PiAvg/(Ed(I,J,K)+PL(I,J,K))
+        End Do
+        End Do
  3108   Continue
         Write(394,*) ! write a new-line-symbol to the file
         Close(394)
@@ -1461,9 +1471,9 @@
         r22=NX*ddx+NY*ddy
         r33=NX*ddx+NY*ddy
 
-        DO 300 K=NZ0,NZ
-        DO 300 J=NY0,NY
-        DO 300 I=NX0,NX
+        Do 300 K=NZ0,NZ
+        Do J=NY0,NY
+        Do I=NX0,NX
 
         PiCut = PiPiMaxRatio*maxPiRatio*(Ed(I,J,K)+PL(I,J,K)) ! max possible Pi value
         If (abs(Pi00(I,J,K)) > PiCut) Then
@@ -1502,6 +1512,8 @@
           EndIf
         EndIf
 
+        End Do
+        End Do
  300    Continue
 
         Write(190,"(f15.8,f15.8,f15.8,f15.8,f15.8,f15.8,f15.8,f15.8)")
@@ -1517,9 +1529,9 @@
         Write(198,'(f15.8)',ADVANCE='NO') Time ! write column header
         Write(199,'(f15.8)',ADVANCE='NO') Time ! write column header
 
-        DO 1318 K=NZ0,NZ0
-        DO 1318 J=0,0
-        DO 1318 I=0,NXPhy
+        Do 1318 K=NZ0,NZ0
+        Do J=0,0
+        Do I=0,NXPhy
           EAndP = Ed(I,J,K)+PL(I,J,K)
           Write(193,'(f15.8)',ADVANCE='NO') Pi00(I,J,K)/EAndP
           Write(194,'(f15.8)',ADVANCE='NO') Pi01(I,J,K)/EAndP
@@ -1528,6 +1540,8 @@
           Write(197,'(f15.8)',ADVANCE='NO') Pi12(I,J,K)/EAndP
           Write(198,'(f15.8)',ADVANCE='NO') Pi22(I,J,K)/EAndP
           Write(199,'(f15.8)',ADVANCE='NO') Pi33(I,J,K)/EAndP
+        End Do
+        End Do
  1318   Continue
         Write(193,*) ! write a new-line-symbol to the file
         Write(194,*) ! write a new-line-symbol to the file

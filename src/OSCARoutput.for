@@ -146,8 +146,8 @@ CSHEN======parameters declearation end==========================================
       Common /ViscousC / ViscousC,VisBeta, IVisflag ! Related to Shear Viscosity
 
       do 3007 K=NZ0,NZ
-      do 3007 I=NXPhy0,NXPhy
-      do 3007 J=NYPhy0,NYPhy
+      do I=NXPhy0,NXPhy
+      do J=NYPhy0,NYPhy
        OEd   = Ed(I,J,K)*HbarC
        OPL   = PL(I,J,K)*HbarC
        OTemp = Temp(I,J,K)*HbarC
@@ -175,6 +175,8 @@ CSHEN======parameters declearation end==========================================
      &                OEd, OPL, OTemp, R_qgp, Vx(I,J,K), Vy(I,J,K),
      &                OPi00, OPi01, OPi02, OPi11, OPi12,
      &                OPi22, OPi33,OPPi,OEtas,OTaupi,OTaubPi
+      end do
+      end do
 3007  continue
 3008  FORMAT(3i5,3f18.8,i5,13f18.8)
 
@@ -200,8 +202,8 @@ CSHEN=========end==========================================================
 
 
       do 3009 K=NZ0,NZ
-      do 3009 I=NXPhy0,NXPhy
-      do 3009 J=NYPhy0,NYPhy
+      do I=NXPhy0,NXPhy
+      do J=NYPhy0,NYPhy
        OEd   = 0.0d0
        OPL   = 0.0d0
        OTemp = 0.0d0
@@ -223,6 +225,8 @@ CSHEN=========end==========================================================
      &                OEd, OPL, OTemp, R_qgp, OVx, OVy,
      &                OPi00, OPi01, OPi02, OPi11, OPi12,
      &                OPi22, OPi33,OPPi,OEtas,OTaupi,OTaubPi
+      end do
+      end do
 3009  continue
 3010  FORMAT(3i5,3f18.8,i5,13f18.8)
       end
