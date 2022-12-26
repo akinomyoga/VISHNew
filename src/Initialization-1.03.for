@@ -382,6 +382,12 @@ C====Input the initial condition from file====
             End Do
             End Do
           End If ! IEin==0
+        Else If (IInit.eq.9902) then
+         call InitialInviscidGubser(Ed,Bd,Sd,U0,U1,U2, DX,DY,DZ,DT,
+     &          NX0,NY0,NZ0, NX,NY,NZ, NXPhy0,NYPhy0, NXPhy,NYPhy)
+         PU0 = U0
+         PU1 = U1
+         PU2 = U2
         else
             Print*,'Init=',IInit,' is not supported by this version.'! ---Zhi-Changes---
             Stop
@@ -671,5 +677,65 @@ C       write(*,'(f6.3, 12f10.5)')Time,PPI(30,30,NZ0),PPI(40,40,NZ0),
 C     &           PPI(50,50,NZ0),  PPI(60,60,NZ0),
 C     &           PPI(70,70,NZ0),  PPI(80,80,NZ0),
 C     &           PPI(90,90,NZ0),  PPI(100,100,NZ0)
+
+      End Subroutine
+
+C-----**** inviscid Gubser initial condition (KM, 2022-12-26) **********
+
+      Subroutine InitialInviscidGubser(
+     &  Ed,Bd,Sd,U0,U1,U2, DX,DY,DZ,DT,
+     &  NX0,NY0,NZ0,NX,NY,NZ, NXPhy0,NYPhy0, NXPhy,NYPhy)
+      Implicit None
+
+      ! Arguments
+      Double Precision Ed, Bd, Sd, U0, U1, U2
+      Dimension Ed(NX0:NX, NY0:NY, NZ0:NZ) ! Energy density
+      Dimension Bd(NX0:NX, NY0:NY, NZ0:NZ) ! Baryon density
+      Dimension Sd(NX0:NX, NY0:NY, NZ0:NZ) ! Entropy density
+      Dimension U0(NX0:NX, NY0:NY, NZ0:NZ) ! Four velocity
+      Dimension U1(NX0:NX, NY0:NY, NZ0:NZ) ! Four velocity
+      Dimension U2(NX0:NX, NY0:NY, NZ0:NZ) ! Four velocity
+      Double Precision DX,DY,DZ,DT ! Mesh sizes and timestep
+      Integer NX0,NY0,NZ0,NX,NY,NZ ! Numerical Grid sizes
+      Integer NXPhy0,NYPhy0,NZPhy0,NXPhy,NYPhy,NZPhy ! Physical Grid sizes
+
+      ! External variables/constants
+      Double Precision T0 ! initial time tau_0
+      Common /T0/ T0
+
+      ! Local constants
+      Double Precision, Parameter :: GUBSER_COEFF = 1d3
+      Double Precision, Parameter :: GUBSER_Q = 2.0d0
+
+      ! Local variables
+      Integer i, j
+      Double Precision t, x, y, r
+      Double Precision energy_factor, a, b, th, ch, sh
+
+      t = GUBSER_Q * T0
+      energy_factor = GUBSER_COEFF * (t ** (-4.0d0 / 3.0d0))
+
+      Do j = NYPhy0, NYPhy
+       Do i = NXPhy0, NXPhy
+        x = GUBSER_Q * DX * i
+        y = GUBSER_Q * DY * j
+        r = sqrt(x**2 + y**2)
+        a = 1.0d0 + t * t + r * r;
+        b = 2.0d0 * t * r
+        th = b / a
+        ch = sqrt(1.0d0/(1.0d0 - th*th))
+        sh = sqrt(ch*ch - 1.0d0)
+
+        Ed(i, j, :) = energy_factor * (a*a - b*b)**(-4.0d0 / 3.0d0)
+        U0(i, j, :) = ch
+        If (r .eq. 0.0d0) then
+          U1(i, j, :) = 0.0d0
+          U2(i, j, :) = 0.0d0
+        Else
+          U1(i, j, :) = sh * x / r
+          U2(i, j, :) = sh * y / r
+        End If
+       End Do
+      End Do
 
       End Subroutine
