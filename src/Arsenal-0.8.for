@@ -239,7 +239,7 @@
       xL = varL
       xR = varR
       tolerance = 60
-      
+
       yL = func(xL)
       yR = func(xR)
       if(abs(yL - varY) < 1d-15) then
@@ -348,7 +348,7 @@
 !     maintain XX2 in the boundary
         if(XX2.lt.varL) XX2=varL
         if(XX2.gt.varR) XX2=varR
-        
+
         impatience = impatience + 1
         If (impatience>tolerance) Then
           Print *, "Subroutine invertFunctionD: ",
@@ -358,7 +358,7 @@
         End If
         dd = abs(XX2 - XX1)*0.05
       End Do ! <=> abs(XX2-XX1)>accuracy
-      
+
       if(XX2 .lt. varL) then
          varResult = varL
       else if(XX2 .gt. varR) then
@@ -421,7 +421,7 @@
 
 !     Check initial value is solution
       if(abs(fl)<numericalZero) then
-        varResult = varL 
+        varResult = varL
         return
       elseif (abs(fh)<numericalZero) then
         varResult = varR
@@ -487,7 +487,7 @@
 
       print*, "invertFunctionH error!"
       print*, "reached maximum iteration but hadn't found root!"
-      stop 
+      stop
 
       End Subroutine
 !-----------------------------------------------------------------------
